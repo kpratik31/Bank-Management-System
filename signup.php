@@ -15,24 +15,20 @@
         // name credentials
         if(strlen($name)<2){
             echo '<script>alert("Name is too short")</script>';
-            // header("Location : http://localhost/bms/signup.php");
             exit;
         }
         else if(strlen($name)>50){
             echo '<script> alert("Name is too large")</script>';
-            // header("Location : http://localhost/bms/signup.php");
             exit;
         }
-        else if(!ctype_alpha($name)){
+        else if(!preg_match("/^[a-zA-Z\s]+$/", $name)){
             echo '<script> alert("Invalid Characters in Name")</script>';
-            // header("Location : http://localhost/bms/signup.php");
             exit;
         }
 
         //username
         if(strlen($username)<2){
             echo '<script>alert("Username is too short")</script>';
-            // header("Location : http://localhost/bms/signup.php");
             exit;
         }
         $sql1 = "SELECT username FROM users";
@@ -84,25 +80,46 @@
         }
 
         //dateofbirth
-        $year = date('Y', strtotime($dob));
-        $mydate=getdate(date("U"));
-        $todaysyear = $mydate[year];
-        if(($todaysyear- $year)<16){
-            echo '<script>alert("Your age is below 16")';
+        $Usersyear = date('Y', strtotime($dob));
+        $Currentyear = date("Y"); 
+        if(($Currentyear- $Usersyear)<16){
+            echo '<script>alert("Your age is below 16")</script>';
+            exit;
+        }
+        
+        //email
+        $sql2 = "SELECT email FROM users";
+        $result2 = mysqli_query($conn,$sql2);
+        if(mysqli_num_rows($result2)>0){
+            while($row=mysqli_fetch_array($result2)){
+                if($row['email'] == $email){
+                    echo '<script>alert("Email is already used")</script>';
+                    exit;
+                }
+            }
         }
 
+        $indexOfAt = strpos($email,'@');
+        $indexOfDot = false;
+        if($indexOfAt != false && $indexOfAt!=0){
+            $indexOfDot = strpos($email,'.',$indexOfAt);
+            if($indexOfDot==false){
+                echo'<script>alert("Email is not valid")</script>';
+                exit;
+            }
+        }
+        else{
+            echo'<script>alert("Email is not valid")</script>';
+            exit;
+        }
+        
         //pincode
         if(!(strlen((string)$pincode)== 6)){
             echo '<script>alert("Please Enter Valid Pincode")</script>';
             exit;
         }
 
-        
-
-
-
-
-        
+        //insertion in user table of new user
         $sql= "INSERT INTO `users` (`name`, `username`, `password`, `mob`, `dob`, `email`, `pincode`) VALUES ('$name', '$username', '$password', '$mobile', '$dob', '$email', '$pincode')";
         $result = mysqli_query($conn,$sql);
         
@@ -112,7 +129,32 @@
             echo '<script>alert("Error")</script>';
         }
         
+        //for user_account_details table
 
+        //account no
+        
+        function randomNumber($length) {
+            $result = '38';
+        
+            for($i = 0; $i < $length-2; $i++) {
+                $result .= mt_rand(0, 9);
+            }
+        
+            return $result;
+        }
+        
+        $account_no = randomNumber(11);
+        	
+
+        //account balance
+        $account_bal = 200;
+
+
+        // insertion into user_account_details Table
+        $sql_acc = "INSERT INTO `user_account_details` (`account_no`, `account_bal`, `username`) VALUES('$account_no', '$account_bal', '$username')";
+
+        mysqli_query($conn, $sql_acc);        
+        
 
     }
 
@@ -120,12 +162,7 @@
 ?>
 
 
-
-    
-
-
-
-
+<!--HTML page of Signup.php-->
 
 <!DOCTYPE html>
 <html lang="en">

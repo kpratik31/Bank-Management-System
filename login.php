@@ -1,31 +1,19 @@
 <?php
-    // session_start();
-    // if(isset($_SESSION['usr_id'])!="") {
-    //     header("Location: index.php");
-    // }
 
-    //connection
     include'connection.php';
 
-    //check if form is submitted
-    if(isset($_POST['login'])){
-        $email = mysqli_real_escape_string($conn,$_POST['email']);
-        $password = mysqli_real_escape_string($conn,$_POST['password']);   
-        $result = mysqli_query($conn, "SELECT * FROM users WHERE email = '" .$email. "' and password = '" .md5($password) . "'");
     
-        if($row = mysqli_fetch_array($result)){
+    if(isset($_POST['login'])){
+        $email  = $_POST['email'];
+        $password  = $_POST['password'];
+        $sql = "SELECT * FROM users WHERE email= '$email' and password = '$password'";
+        $result = mysqli_query($conn,$sql);
+        if(mysqli_num_rows($result)>0){
 
-            // $_SESSION['usr_id'] = $row['id'];
-            $_SESSION['username'] = $row['username'];
-
-            // if($_SESSION['']==1){
-            //     header("Location : admin.php");
-            // }else{
-            //     header("Location : customer.php");
-            // }
-
+            include 'dashboard.php';
+            
         }else{
-            $errormsg = "Incorrect Email or Password !!!";
+            echo '<script>alert("Invalid Email/Password")</script>';
         }
     }
 ?>
